@@ -1,4 +1,4 @@
-export const apiKey = '656431513e6735d2c6d8de89d7d374d5';
+export const apiKey = 'write your apikey';
 
 
 // this data was used for the development of the app
