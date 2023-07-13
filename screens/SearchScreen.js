@@ -1,23 +1,46 @@
 import { View, Text, TextInput, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import Loading from '../components/loading';
+import { debounce } from 'lodash';
+import { fallbackMoviePoster, image185, searchMovies } from '../api/moviedb';
 
 
 var { width, height } = Dimensions.get('window');
 export default function SearchScreen() {
+    
     const navigation = useNavigation();
-    const [results, setResults] = useState([1, 2, 3, 4, 5]);
+    const [results, setResults] = useState([]);
     const movieName = 'Ant-Man and The Wasp Quantum';
     const [loading, setLoading] = useState(false);
+    const handleSearch = search=>{
+        if(search && search.length>2){
+            setLoading(true);
+            searchMovies({
+                query: search,
+                include_adult: false,
+                language: 'en-US',
+                page: '1'
+            }).then(data=>{
+                console.log('got search results');
+                setLoading(false);
+                if(data && data.results) setResults(data.results);
+            })
+        }else{
+            setLoading(false);
+            setResults([])
+        }
+      }
+    const handleTextDebounce = useCallback(debounce(handleSearch, 400),[]);
 
 
     return (
         <SafeAreaView className="bg-neutral-800 flex-1">
             <View className="mx-4 mb-3 flex-row justify-between items-center border border-r-neutral-500 rounded-full">
                 <TextInput
+                onChangeText={handleTextDebounce}
                     placeholder='Search Movies'
                     placeholderTextColor={'lightgray'}
                     className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
@@ -50,16 +73,17 @@ export default function SearchScreen() {
                                         return (
                                             <TouchableWithoutFeedback
                                                 key={index}
-                                                onPress={() => navigation.push("Movie ", item)}
+                                                onPress={() => navigation.push("Movie", item)}
                                             >
                                                 <View className="space-y-2 mb-4">
                                                     <Image
-                                                        source={require('../assets/images/moviePoster2.png')}
+                                                        // source={require('../assets/images/moviePoster2.png')}
+                                                        source={{uri: image185(item.poster_path) || fallbackMoviePoster}}
                                                         className="rounded-3xl"
                                                         style={{ width: width * 0.44, height: height * 0.3 }}
     
                                                     />
-                                                    <Text className="text-neutral-300 ml-1">{movieName.length > 22 ? movieName.slice(0, 22) + '....' : movieName}</Text>
+                                                    <Text className="text-gray-300 ml-1">{item.title.length > 22 ? item.title.slice(0, 22) + '....' : item.title}</Text>
                                                 </View>
     
                                             </TouchableWithoutFeedback>

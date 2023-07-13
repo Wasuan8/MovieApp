@@ -2,12 +2,12 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedbac
 import React from 'react'
 import { styles } from '../theme'
 import { useNavigation } from '@react-navigation/native'
+import { fallbackMoviePoster, image185 } from '../api/moviedb';
 
 
 var { width, height } = Dimensions.get('window');
 
 export default function MoviesList({ title, data, hideSeeAll }) {
-    let moviename = 'Ant-Man and the wasp: Qunatum';
     const navigation = useNavigation();
     return (
         <View className="mb-8 space-y-4">
@@ -40,7 +40,8 @@ export default function MoviesList({ title, data, hideSeeAll }) {
                             >
                                 <View className="space-y-1 mr-4">
                                     <Image
-                                        source={require('../assets/images/moviePoster2.png')}
+                                        source={{ uri: image185(item.poster_path) || fallbackMoviePoster }}
+                                        // source={require('../assets/images/moviePoster2.png')}
                                         className="rounded-3xl"
                                         style={{
                                             width: width * 0.33,
@@ -49,7 +50,7 @@ export default function MoviesList({ title, data, hideSeeAll }) {
                                     />
                                     <Text className="text-neutral-300 ml--1">
                                         {
-                                            moviename.length > 14 ? moviename.slice(0, 14) + '...' : moviename
+                                            item.title.length > 14 ? item.title.slice(0, 14) + '...' : item.title
                                         }
                                     </Text>
                                 </View>
